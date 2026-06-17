@@ -1,10 +1,6 @@
 ---
 name: superteam
 description: "Multi-agent orchestration system for complex tasks. Use when a task requires coordination across multiple specialists, spans 3+ files, or can be decomposed into independent subtasks."
-paths:
-  - "src/**/*.ts"
-  - "src/**/*.tsx"
-  - "src/**/*.py"
 disable-model-invocation: false
 ---
 
@@ -95,20 +91,43 @@ node .cursor/skills/superteam/scripts/record-event.js --actor agent --type decis
 └── knowledge/          # Accumulated knowledge
 ```
 
+## Phase Documentation
+
+Detailed guidance for each phase lives in `.cursor/skills/superteam/phases/`:
+
+| File | Phase | Mode |
+|------|-------|------|
+| `phase-1-pm.md` | PM (Requirements) | Interactive - Explorer + PM subagents, user approval gate |
+| `phase-2-architect.md` | Architect (Planning) | Automated - decompose spec into frozen contracts |
+| `phase-3-execute.md` | Execute (Implementation) | Automated - Generator/Evaluator pairs per increment |
+| `phase-4-evaluation.md` | Strict Evaluation | Mandatory - binary PASS/FAIL against spec |
+| `phase-5-delivery.md` | Delivery (Results) | Terminal - Curator extracts knowledge, present results |
+
+Read the relevant phase file before starting each phase for detailed step-by-step guidance.
+
+## Available Subagents
+
+| Agent | Role | Mode |
+|-------|------|------|
+| `@orchestrator` | Pipeline coordination, phase transitions | read/write |
+| `@pm` | Requirements gathering, spec creation | read/write |
+| `@explorer` | Codebase research, knowledge accumulation | readonly |
+| `@architect` | Plan decomposition, contract creation | read/write |
+| `@generator` | Increment implementation | read/write |
+| `@evaluator` | Contract verification, gate execution | read/write |
+| `@plan-evaluator` | Independent plan verification | readonly |
+| `@manager` | Execution monitoring, anomaly detection | read/write |
+| `@curator` | Knowledge extraction to global wiki | read/write |
+
 ## Hooks
 
-This skill uses hooks for long-running agent loops:
+This skill uses hooks for safety and long-running loops:
 
-```json
-{
-  "version": 1,
-  "hooks": {
-    "stop": [{ "command": "node .cursor/skills/superteam/scripts/superteam-loop.js" }]
-  }
-}
-```
-
-The hook checks if the pipeline is complete and continues if not.
+- **preToolUse (Shell)**: `invariant-check.js` - blocks git commit if validation fails
+- **preToolUse (Write)**: `verdict-gate.js` - blocks verdict writes without gate results
+- **stop**: `completion-nudge.js` - warns on incomplete contracts
+- **stop**: `superteam-loop.js` - auto-continues pipeline (loop_limit: 25)
+- **sessionStart**: `startup-check.js` - reports active session status
 
 ## Constraints
 

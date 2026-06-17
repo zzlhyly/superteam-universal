@@ -64,9 +64,10 @@ Before searching externally, check:
 If knowledge base doesn't have the answer, spawn an Explorer task:
 
 ```typescript
-task(subagent_type="explore", run_in_background=true, load_skills=[],
+task(
   description="Research topic",
-  prompt="Investigate: ${question}. Return findings with file references.")
+  prompt="Investigate: ${question}. Return findings with file references."
+)
 ```
 
 ### 3. Log Everything
@@ -74,7 +75,7 @@ task(subagent_type="explore", run_in_background=true, load_skills=[],
 Record decisions and findings:
 
 ```bash
-node scripts/record-event.js \
+node .opencode/skills/superteam/scripts/record-event.js \
   --actor agent-name \
   --type decision \
   --summary "What was decided" \
@@ -157,10 +158,10 @@ describe('Feature', () => {
   it('should do something', async () => {
     // Arrange
     const input = 'test';
-    
+
     // Act
     const result = await feature(input);
-    
+
     // Assert
     expect(result).toBe('expected');
   });

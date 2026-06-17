@@ -16,13 +16,9 @@ const STATE_FILE = path.join(SUPERTEAM_DIR, 'state.json');
 const MAX_ITERATIONS = 20;
 
 async function main() {
-  // Read input from stdin (Cursor passes StopHookInput as JSON)
   let input = '';
-  try {
-    input = fs.readFileSync('/dev/stdin', 'utf8');
-  } catch (e) {
-    // Windows doesn't have /dev/stdin, try reading from environment
-    input = process.env.STOP_HOOK_INPUT || '{}';
+  for await (const chunk of process.stdin) {
+    input += chunk;
   }
 
   let hookInput;

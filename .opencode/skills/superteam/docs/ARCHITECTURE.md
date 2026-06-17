@@ -4,6 +4,42 @@
 
 This is an adaptation of the [Superteam](https://github.com/Crysple/superteam) multi-agent orchestration system for **OpenCode**. The original system is designed for Claude Code's team mode with tmux-based agent isolation. This adaptation reimagines the architecture for OpenCode's `task()` subagent system.
 
+## Directory Structure
+
+```
+.opencode/
+├── opencode.json                          # OpenCode configuration
+├── plugins/
+│   └── superteam-hooks.js                 # Safety hooks (invariant, verdict, nudge, startup)
+└── skills/
+    └── superteam/
+        ├── SKILL.md                       # Entry point skill
+        ├── global-guide.md                # Shared rules
+        ├── WORKFLOW_STATE.md              # Multi-agent handoff state
+        ├── phases/                          # Phase documentation
+        │   ├── phase-1-pm.md
+        │   ├── phase-2-architect.md
+        │   ├── phase-3-execute.md
+        │   ├── phase-4-evaluation.md
+        │   └── phase-5-delivery.md
+        ├── docs/
+        │   └── ARCHITECTURE.md              # This file
+        ├── task-forms/
+        │   └── engineering/
+        │       └── FORM.md                  # Workflow definition
+        └── scripts/
+            ├── state-manager.js             # State management
+            ├── gate-runner.js               # Gate execution
+            ├── record-event.js              # Event logging
+            ├── message-bus.js               # Agent communication
+            ├── init-session.js              # Session initialization
+            ├── increment-1/                   # Example increment gates
+            └── final/                       # Example final gates
+
+.opencode/agents/                              # Agent definitions (auto-discovered)
+.superteam/                                  # Runtime session state
+```
+
 ## Key Architectural Differences
 
 ### Original Superteam (Claude Code)
@@ -24,7 +60,7 @@ This is an adaptation of the [Superteam](https://github.com/Crysple/superteam) m
 | Communication | File-based message queue + orchestrator routing |
 | State Management | JSON files with file-lock simulation |
 | Lifecycle | Task-based (each task is stateless) |
-| Hooks | Skill-based workflow enforcement |
+| Hooks | OpenCode plugin events via `superteam-hooks.js` |
 
 ## Architecture Diagram
 
@@ -34,8 +70,8 @@ This is an adaptation of the [Superteam](https://github.com/Crysple/superteam) m
 └─────────────────────────┬───────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
-│              SKILL.md (Entry Point)                          │
-│         /superteam command handler                           │
+│         .opencode/skills/superteam/SKILL.md                  │
+│              superteam skill entry point                     │
 └─────────────────────────┬───────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
@@ -60,7 +96,7 @@ This is an adaptation of the [Superteam](https://github.com/Crysple/superteam) m
 
 ## Core Components
 
-### 1. State Manager (`scripts/state-manager.js`)
+### 1. State Manager (`.opencode/skills/superteam/scripts/state-manager.js`)
 
 Replaces `state-mutate.sh` with a cross-platform Node.js implementation.
 
@@ -72,7 +108,7 @@ Replaces `state-mutate.sh` with a cross-platform Node.js implementation.
 // - Revision tracking
 ```
 
-### 2. Message Bus (`scripts/message-bus.js`)
+### 2. Message Bus (`.opencode/skills/superteam/scripts/message-bus.js`)
 
 Replaces `SendMessage` with file-based message queue.
 
@@ -84,7 +120,7 @@ Replaces `SendMessage` with file-based message queue.
 // - Message history
 ```
 
-### 3. Gate Runner (`scripts/gate-runner.js`)
+### 3. Gate Runner (`.opencode/skills/superteam/scripts/gate-runner.js`)
 
 Replaces `run-gates.sh` with cross-platform implementation.
 
@@ -96,7 +132,18 @@ Replaces `run-gates.sh` with cross-platform implementation.
 // - Support for Node.js and Python gates
 ```
 
-### 4. Orchestrator Agent
+### 4. Plugin Hooks (`.opencode/plugins/superteam-hooks.js`)
+
+OpenCode plugin providing safety enforcement:
+
+| Event | Hook | Purpose |
+|-------|------|---------|
+| `tool.execute.before` | Invariant check | Block git commit if validation fails |
+| `tool.execute.before` | Verdict gate | Block verdict writes without gate results |
+| `session.idle` | Completion nudge | Warn on incomplete increments |
+| `session.created` | Startup check | Report active session status |
+
+### 5. Orchestrator Agent
 
 The main coordination agent that drives the pipeline.
 
@@ -116,65 +163,44 @@ The main coordination agent that drives the pipeline.
 ### Phase 1: PM Phase
 
 ```
-1. User invokes /superteam
+1. User invokes superteam skill
 2. SKILL.md creates orchestrator task
-3. Orchestrator spawns PM task with context:
-   - User request
-   - Project root
-   - Task form
-4. PM task:
-   - Reads codebase (using explore tools)
-   - Asks clarifying questions (via orchestrator)
-   - Generates spec.md
-   - Creates acceptance gates
-5. PM returns result to orchestrator
-6. Orchestrator presents to user for approval
+3. Orchestrator spawns PM task with context
+4. PM generates spec.md and acceptance gates
+5. Orchestrator presents to user for approval
 ```
 
 ### Phase 2: Architect Phase
 
 ```
 1. Orchestrator spawns Architect task
-2. Architect task:
-   - Reads spec.md
-   - Decomposes into increments
-   - Creates contracts with gate scripts
-   - Returns plan.md + contracts
-3. Orchestrator validates plan
+2. Architect decomposes into increments and contracts
+3. Plan Evaluator verifies coverage
+4. Contracts frozen
 ```
 
 ### Phase 3: Execute Phase
 
 ```
 1. For each increment:
-   a. Orchestrator spawns Generator task
-      - Context: contract, prior attempts, lessons
-      - Task: implement, validate, commit
-   b. Generator returns result
-   c. Orchestrator spawns Evaluator task
-      - Context: contract, generator output
-      - Task: run gates, issue verdict
-   d. Evaluator returns verdict
-   e. If REVISE: loop back to (a)
-   f. If APPROVED: proceed to next increment
+   a. Spawn Generator task (implement, validate, commit)
+   b. Spawn Evaluator task (run gates, issue verdict)
+   c. Handle APPROVED / REVISE / GATE-CHALLENGE
 ```
 
 ### Phase 4: Strict Evaluation
 
 ```
-1. Orchestrator spawns Strict Evaluator task
-2. Strict Evaluator runs ALL final gates
-3. Returns PASS/FAIL verdict
-4. If FAIL: return to Phase 3 for fixes
-5. If PASS: proceed to Phase 5
+1. Run ALL final gates unconditionally
+2. Binary PASS or FAIL
+3. If FAIL: targeted fix increments, re-evaluate
 ```
 
 ### Phase 5: Delivery
 
 ```
-1. Orchestrator spawns Curator task
-2. Curator extracts knowledge to wiki
-3. Orchestrator presents results to user
+1. Curator extracts knowledge to global wiki
+2. Orchestrator presents results to user
 ```
 
 ## Context Passing Strategy
@@ -199,7 +225,7 @@ Since OpenCode tasks are stateless, context must be explicitly passed:
 ## Error Recovery
 
 ### Stall Detection
-Instead of a watchdog timer, the orchestrator checks for stalls:
+The orchestrator checks for stalls:
 - Read `state.json` timestamp
 - If > 20 minutes since last update: stall detected
 - Recovery: restart current phase with fresh context

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Session Initializer for Superteam OpenCode
- * 
+ *
  * Initializes a new Superteam session with all required directories and files.
- * Usage: node init-session.js [form-name]
+ * Usage: node .opencode/skills/superteam/scripts/init-session.js [form-name]
  */
 
 const fs = require('fs');
@@ -75,7 +75,7 @@ function initialize() {
   console.log('Initializing Superteam session...');
   console.log(`Form: ${FORM_NAME}`);
   console.log('');
-  
+
   // Create directories
   console.log('Creating directories...');
   for (const dir of DIRECTORIES) {
@@ -86,7 +86,7 @@ function initialize() {
       console.log(`  Exists: ${dir}`);
     }
   }
-  
+
   // Create template files
   console.log('\nCreating template files...');
   for (const [filepath, content] of Object.entries(TEMPLATES)) {
@@ -97,41 +97,39 @@ function initialize() {
       console.log(`  Exists: ${filepath}`);
     }
   }
-  
+
   // Initialize state
   console.log('\nInitializing state...');
   try {
-    require('./state-manager.js');
-    // Re-run with init command
     const { execSync } = require('child_process');
-    execSync('node scripts/state-manager.js init', { encoding: 'utf8' });
+    execSync('node .opencode/skills/superteam/scripts/state-manager.js init', { encoding: 'utf8' });
     console.log('  State initialized');
   } catch (error) {
     console.error('  Warning: Could not initialize state via state-manager.js');
-    console.error('  Run manually: node scripts/state-manager.js init');
+    console.error('  Run manually: node .opencode/skills/superteam/scripts/state-manager.js init');
   }
-  
+
   // Create empty events file
   const eventsFile = `${SUPERTEAM_DIR}/events.jsonl`;
   if (!fs.existsSync(eventsFile)) {
     fs.writeFileSync(eventsFile, '');
     console.log(`  Created: ${eventsFile}`);
   }
-  
+
   // Create empty strict evaluations file
   const strictFile = `${SUPERTEAM_DIR}/strict-evaluations.jsonl`;
   if (!fs.existsSync(strictFile)) {
     fs.writeFileSync(strictFile, '');
     console.log(`  Created: ${strictFile}`);
   }
-  
+
   console.log('\n' + '='.repeat(50));
   console.log('Superteam session initialized successfully!');
   console.log('='.repeat(50));
   console.log('');
   console.log('Next steps:');
-  console.log('1. Run: node scripts/state-manager.js status');
-  console.log('2. Start the pipeline with /superteam command');
+  console.log('1. Run: node .opencode/skills/superteam/scripts/state-manager.js status');
+  console.log('2. Start the pipeline with the superteam skill');
   console.log('');
   console.log('Directory structure:');
   console.log(`  ${SUPERTEAM_DIR}/`);

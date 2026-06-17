@@ -1,9 +1,32 @@
 {
   "version": 1,
   "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "Shell",
+        "command": "node .cursor/skills/superteam/scripts/hooks/invariant-check.js",
+        "timeout": 120,
+        "failClosed": false
+      },
+      {
+        "matcher": "Write",
+        "command": "node .cursor/skills/superteam/scripts/hooks/verdict-gate.js",
+        "timeout": 10,
+        "failClosed": true
+      }
+    ],
     "stop": [
       {
-        "command": "node .cursor/skills/superteam/scripts/superteam-loop.js"
+        "command": "node .cursor/skills/superteam/scripts/hooks/completion-nudge.js"
+      },
+      {
+        "command": "node .cursor/skills/superteam/scripts/superteam-loop.js",
+        "loop_limit": 25
+      }
+    ],
+    "sessionStart": [
+      {
+        "command": "node .cursor/skills/superteam/scripts/hooks/startup-check.js"
       }
     ]
   }

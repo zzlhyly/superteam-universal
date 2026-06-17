@@ -1,7 +1,6 @@
 ---
-description: "Superteam workflow for complex multi-step tasks requiring coordination across multiple specialists"
+description: "Superteam workflow phases and gate scripts for complex multi-step tasks requiring coordination across multiple specialists. Activated when working on superteam pipelines, multi-agent orchestration, or tasks spanning 3+ files."
 alwaysApply: false
-globs: "src/**/*.ts,src/**/*.tsx,src/**/*.py"
 ---
 
 # Superteam Workflow

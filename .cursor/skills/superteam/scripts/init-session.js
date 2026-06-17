@@ -101,14 +101,12 @@ function initialize() {
   // Initialize state
   console.log('\nInitializing state...');
   try {
-    require('./state-manager.js');
-    // Re-run with init command
     const { execSync } = require('child_process');
-    execSync('node scripts/state-manager.js init', { encoding: 'utf8' });
+    execSync('node .cursor/skills/superteam/scripts/state-manager.js init', { encoding: 'utf8' });
     console.log('  State initialized');
   } catch (error) {
     console.error('  Warning: Could not initialize state via state-manager.js');
-    console.error('  Run manually: node scripts/state-manager.js init');
+    console.error('  Run manually: node .cursor/skills/superteam/scripts/state-manager.js init');
   }
   
   // Create empty events file
@@ -130,7 +128,7 @@ function initialize() {
   console.log('='.repeat(50));
   console.log('');
   console.log('Next steps:');
-  console.log('1. Run: node scripts/state-manager.js status');
+  console.log('1. Run: node .cursor/skills/superteam/scripts/state-manager.js status');
   console.log('2. Start the pipeline with /superteam command');
   console.log('');
   console.log('Directory structure:');

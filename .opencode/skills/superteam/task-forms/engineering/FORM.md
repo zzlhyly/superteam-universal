@@ -61,9 +61,6 @@ Manager (or Architect after GATE-CHALLENGE) spawns Generator:
 
 ```typescript
 task(
-  category="unspecified-high",
-  load_skills=[],
-  run_in_background=false,
   description=`Generator - Increment ${N}`,
   prompt=`You are the Generator for increment ${N}.
 
@@ -81,14 +78,14 @@ Your task:
 6. Request evaluation
 
 Use gate-runner.js to validate:
-node scripts/gate-runner.js run ${N}
+node .opencode/skills/superteam/scripts/gate-runner.js run ${N}
 `
 )
 ```
 
 ### Step 2: Generator implements
 
-Generator reads contract, implements increment, runs pre-validation (`node scripts/gate-runner.js run N`), fixes failures, commits changes.
+Generator reads contract, implements increment, runs pre-validation (`node .opencode/skills/superteam/scripts/gate-runner.js run N`), fixes failures, commits changes.
 
 ### Step 3: Spawn Evaluator
 
@@ -96,9 +93,6 @@ Generator or Manager spawns Evaluator:
 
 ```typescript
 task(
-  category="unspecified-high",
-  load_skills=[],
-  run_in_background=false,
   description=`Evaluator - Increment ${N}`,
   prompt=`You are the Evaluator for increment ${N}.
 
@@ -107,7 +101,7 @@ Read these files:
 - The implementation files (what Generator created)
 
 Your task:
-1. Run hard gates: node scripts/gate-runner.js run ${N}
+1. Run hard gates: node .opencode/skills/superteam/scripts/gate-runner.js run ${N}
 2. Verify soft gates with evidence
 3. Check invariants
 4. Issue verdict: APPROVED, REVISE, or GATE-CHALLENGE
