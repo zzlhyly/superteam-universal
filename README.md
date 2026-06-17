@@ -1,4 +1,4 @@
-# Superteam for OpenCode & Cursor
+# Superteam for OpenCode, Cursor & Claude Code
 
 <div align="center">
 
@@ -10,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Built for OpenCode](https://img.shields.io/badge/OpenCode-Supported-green?style=flat-square)](.opencode/)
 [![Built for Cursor](https://img.shields.io/badge/Cursor-Supported-purple?style=flat-square)](.cursor/)
+[![Built for Claude](https://img.shields.io/badge/Claude-Supported-orange?style=flat-square)](.claude/)
 
 **Language / 语言:** [English](README.md) · [中文](README.zh.md)
 
@@ -17,7 +18,7 @@
 
 ---
 
-This is a **multi-platform adaptation** of the [Superteam](https://github.com/Crysple/superteam) multi-agent orchestration system, originally designed for Claude Code's team mode. The core concepts (contract-gated verification, adversarial feedback loops, 5-phase pipeline) are preserved while adapting to both OpenCode and Cursor.
+This is a **multi-platform adaptation** of the [Superteam](https://github.com/Crysple/superteam) multi-agent orchestration system, originally designed for Claude Code's team mode. The core concepts (contract-gated verification, adversarial feedback loops, 5-phase pipeline) are preserved while adapting to OpenCode, Cursor, and Claude Code.
 
 ## Supported Platforms
 
@@ -25,6 +26,7 @@ This is a **multi-platform adaptation** of the [Superteam](https://github.com/Cr
 |----------|-----------|-------------|--------|
 | **OpenCode** | `.opencode/superteam/` | `SKILL.md` | ✅ Full support |
 | **Cursor** | `.cursor/` | `.cursor/commands/superteam.md` | ✅ Full support |
+| **Claude Code** | `.claude/superteam/` | `skills/superteam/SKILL.md` | ✅ Original |
 
 ## Overview
 
@@ -81,6 +83,29 @@ Superteam spawns a team of specialized agents to handle complex tasks:
    @architect create an implementation plan
    ```
 
+### For Claude Code (Original)
+
+1. Copy `.claude/superteam/` to your Claude Code plugins directory:
+   ```bash
+   # Windows
+   xcopy /E /I .claude\superteam %USERPROFILE%\.claude\plugins\superteam
+   
+   # Linux/macOS
+   cp -r .claude/superteam ~/.claude/plugins/
+   ```
+
+2. Or install via Claude Code plugin system:
+   ```
+   /plugin marketplace add Crysple/superteam
+   /plugin install superteam@superteam
+   /reload-plugins
+   ```
+
+3. Invoke the skill:
+   ```
+   /superteam Build a rate-limited job queue with Redis and dead-letter support
+   ```
+
 ## Architecture
 
 ```
@@ -118,6 +143,7 @@ superteam/
 ├── .opencode/                    # OpenCode version
 │   └── superteam/
 │       ├── SKILL.md              # Entry point
+│       ├── WORKFLOW_STATE.md     # Multi-agent state
 │       ├── global-guide.md       # Shared rules
 │       ├── agents/               # Agent definitions
 │       ├── task-forms/           # Task form definitions
@@ -142,6 +168,16 @@ superteam/
 │   ├── commands/                 # Custom commands
 │   │   └── superteam.md          # /superteam command
 │   └── hooks.json                # Hook configuration
+│
+├── .claude/                      # Claude Code version (original)
+│   └── superteam/
+│       ├── skills/superteam/     # SKILL.md entry point
+│       ├── agents/               # Agent definitions
+│       ├── task-forms/           # Task form definitions
+│       ├── scripts/              # Shell scripts
+│       ├── hooks/                # Hook scripts
+│       ├── .claude-plugin/       # Plugin config
+│       └── global-guide.md       # Shared rules
 │
 ├── AGENTS.md                     # Project instructions (Cursor)
 ├── README.md                     # This file

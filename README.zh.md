@@ -1,4 +1,4 @@
-# Superteam for OpenCode & Cursor
+# Superteam for OpenCode, Cursor & Claude Code
 
 <div align="center">
 
@@ -10,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Built for OpenCode](https://img.shields.io/badge/OpenCode-Supported-green?style=flat-square)](.opencode/)
 [![Built for Cursor](https://img.shields.io/badge/Cursor-Supported-purple?style=flat-square)](.cursor/)
+[![Built for Claude](https://img.shields.io/badge/Claude-Supported-orange?style=flat-square)](.claude/)
 
 **语言 / Language:** [English](README.md) · [中文](README.zh.md)
 
@@ -17,7 +18,7 @@
 
 ---
 
-这是 [Superteam](https://github.com/Crysple/superteam) 多代理编排系统的**多平台适配版本**，最初为 Claude Code 的团队模式设计。核心概念（合同门控验证、对抗性反馈循环、5 阶段流水线）在适配到 OpenCode 和 Cursor 的过程中得以保留。
+这是 [Superteam](https://github.com/Crysple/superteam) 多代理编排系统的**多平台适配版本**，最初为 Claude Code 的团队模式设计。核心概念（合同门控验证、对抗性反馈循环、5 阶段流水线）在适配到 OpenCode、Cursor 和 Claude Code 的过程中得以保留。
 
 ## 支持的平台
 
@@ -25,6 +26,7 @@
 |------|------|--------|------|
 | **OpenCode** | `.opencode/superteam/` | `SKILL.md` | ✅ 完全支持 |
 | **Cursor** | `.cursor/` | `.cursor/commands/superteam.md` | ✅ 完全支持 |
+| **Claude Code** | `.claude/superteam/` | `skills/superteam/SKILL.md` | ✅ 原版 |
 
 ## 概述
 
@@ -81,6 +83,29 @@ Superteam 生成一组专业代理来处理复杂任务：
    @architect 创建实现计划
    ```
 
+### Claude Code 使用（原版）
+
+1. 将 `.claude/superteam/` 复制到你的 Claude Code 插件目录：
+   ```bash
+   # Windows
+   xcopy /E /I .claude\superteam %USERPROFILE%\.claude\plugins\superteam
+   
+   # Linux/macOS
+   cp -r .claude/superteam ~/.claude/plugins/
+   ```
+
+2. 或通过 Claude Code 插件系统安装：
+   ```
+   /plugin marketplace add Crysple/superteam
+   /plugin install superteam@superteam
+   /reload-plugins
+   ```
+
+3. 调用技能：
+   ```
+   /superteam 构建一个带 Redis 和死信队列的限流任务队列
+   ```
+
 ## 架构
 
 ```
@@ -120,6 +145,7 @@ superteam/
 ├── .opencode/                    # OpenCode 版本
 │   └── superteam/
 │       ├── SKILL.md              # 入口点
+│       ├── WORKFLOW_STATE.md     # 多代理状态
 │       ├── global-guide.md       # 共享规则
 │       ├── agents/               # 代理定义
 │       ├── task-forms/           # 任务表单定义
@@ -144,6 +170,16 @@ superteam/
 │   ├── commands/                 # 自定义命令
 │   │   └── superteam.md          # /superteam 命令
 │   └── hooks.json                # 钩子配置
+│
+├── .claude/                      # Claude Code 版本（原版）
+│   └── superteam/
+│       ├── skills/superteam/     # SKILL.md 入口点
+│       ├── agents/               # 代理定义
+│       ├── task-forms/           # 任务表单定义
+│       ├── scripts/              # Shell 脚本
+│       ├── hooks/                # 钩子脚本
+│       ├── .claude-plugin/       # 插件配置
+│       └── global-guide.md       # 共享规则
 │
 ├── AGENTS.md                     # 项目指令（Cursor）
 ├── README.md                     # 英文说明文档
