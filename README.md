@@ -126,7 +126,7 @@ superteam/
 │
 ├── .cursor/                      # Cursor version (native format)
 │   ├── rules/                    # Project rules (.mdc files)
-│   │   ├── 00-core.mdc          # Core rules (always apply)
+│   │   ├── 00-superteam-core.mdc  # Core rules (always apply)
 │   │   └── 01-superteam-workflow.mdc  # Workflow rules
 │   ├── agents/                   # Custom subagents
 │   │   ├── orchestrator.md       # Workflow coordinator

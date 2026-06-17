@@ -128,7 +128,7 @@ superteam/
 │
 ├── .cursor/                      # Cursor 版本（原生格式）
 │   ├── rules/                    # 项目规则（.mdc 文件）
-│   │   ├── 00-core.mdc          # 核心规则（始终应用）
+│   │   ├── 00-superteam-core.mdc  # 核心规则（始终应用）
 │   │   └── 01-superteam-workflow.mdc  # 工作流规则
 │   ├── agents/                   # 自定义子代理
 │   │   ├── orchestrator.md       # 工作流协调器
