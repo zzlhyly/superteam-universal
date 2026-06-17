@@ -24,7 +24,7 @@
 | 平台 | 目录 | 入口点 | 状态 |
 |------|------|--------|------|
 | **OpenCode** | `.opencode/superteam/` | `SKILL.md` | ✅ 完全支持 |
-| **Cursor** | `.cursor/superteam/` | `SKILL.md` | ✅ 完全支持 |
+| **Cursor** | `.cursor/` | `.cursor/commands/superteam.md` | ✅ 完全支持 |
 
 ## 概述
 
@@ -58,18 +58,27 @@ Superteam 生成一组专业代理来处理复杂任务：
 
 ### Cursor 使用
 
-1. 将 `.cursor/` 复制到你的项目根目录：
+1. 将 `.cursor/` 和 `AGENTS.md` 复制到你的项目根目录：
    ```bash
    # Windows
    xcopy /E /I .cursor %USERPROFILE%\your-project\.cursor
+   copy AGENTS.md %USERPROFILE%\your-project\
    
    # Linux/macOS
    cp -r .cursor /path/to/your/project/
+   cp AGENTS.md /path/to/your/project/
    ```
 
-2. 启动 Superteam 会话，告诉 AI：
+2. 使用命令启动 Superteam 会话：
    ```
-   读取 .cursor/superteam/SKILL.md 并启动一个 Superteam 会话：[你的任务]
+   /superteam 构建一个带 Redis 和死信队列的限流任务队列
+   ```
+
+3. 或使用专业子代理：
+   ```
+   @orchestrator 协调实现
+   @pm 收集这个功能的需求
+   @architect 创建实现计划
    ```
 
 ## 架构
@@ -94,10 +103,13 @@ Orchestrator（主编排代理）
 
 | 方面 | 原版（Claude Code） | OpenCode 适配 | Cursor 适配 |
 |------|---------------------|---------------|-------------|
-| 代理隔离 | tmux 面板 | task() 调用 | 单代理上下文 |
+| 代理隔离 | tmux 面板 | task() 调用 | 子代理（.cursor/agents/） |
 | 通信方式 | SendMessage | 基于文件的消息 | 基于文件的消息 |
 | 状态管理 | flock + CAS | 文件操作 | 文件操作 |
-| 生命周期 | 持久代理 | 无状态任务 | 无状态任务 |
+| 生命周期 | 持久代理 | 无状态任务 | 无状态任务 + Hooks |
+| 钩子 | PreToolUse/Stop | 技能工作流 | .cursor/hooks.json |
+| 入口点 | 插件系统 | SKILL.md | 命令 + 技能 + 规则 |
+| 规则 | 插件配置 | SKILL.md | .cursor/rules/*.mdc |
 | 钩子 | PreToolUse/Stop | 技能工作流 | SKILL.md 引用 |
 | 入口点 | 插件系统 | SKILL.md | SKILL.md |
 
@@ -114,15 +126,28 @@ superteam/
 │       ├── scripts/              # 工具脚本
 │       └── docs/                 # 文档
 │
-├── .cursor/                      # Cursor 版本
-│   └── superteam/
-│       ├── SKILL.md              # 入口点
-│       ├── global-guide.md       # 共享规则
-│       ├── agents/               # 代理定义
-│       ├── task-forms/           # 任务表单定义
-│       ├── scripts/              # 工具脚本
-│       └── docs/                 # 文档
+├── .cursor/                      # Cursor 版本（原生格式）
+│   ├── rules/                    # 项目规则（.mdc 文件）
+│   │   ├── 00-core.mdc          # 核心规则（始终应用）
+│   │   └── 01-superteam-workflow.mdc  # 工作流规则
+│   ├── agents/                   # 自定义子代理
+│   │   ├── orchestrator.md       # 工作流协调器
+│   │   ├── pm.md                 # 需求收集
+│   │   ├── architect.md          # 规划
+│   │   ├── generator.md          # 实现
+│   │   ├── evaluator.md          # 验证
+│   │   └── manager.md            # 监控
+│   ├── skills/                   # 动态技能
+│   │   └── superteam/
+│   │       └── SKILL.md          # Superteam 工作流技能
+│   ├── commands/                 # 自定义命令
+│   │   └── superteam.md          # /superteam 命令
+│   ├── hooks/                    # 钩子脚本
+│   │   └── superteam-loop.js     # 长时间运行循环钩子
+│   ├── hooks.json                # 钩子配置
+│   └── scripts/                  # 工具脚本
 │
+├── AGENTS.md                     # 项目指令（Cursor）
 ├── README.md                     # 英文说明文档
 ├── README.zh.md                  # 中文说明文档
 ├── LICENSE                       # MIT 许可证
@@ -201,19 +226,19 @@ superteam/
 ```bash
 # 初始化
 node .opencode/superteam/scripts/state-manager.js init  # OpenCode
-node .cursor/superteam/scripts/state-manager.js init     # Cursor
+node .cursor/scripts/state-manager.js init               # Cursor
 
 # 获取值
 node .opencode/superteam/scripts/state-manager.js get .phase  # OpenCode
-node .cursor/superteam/scripts/state-manager.js get .phase     # Cursor
+node .cursor/scripts/state-manager.js get .phase               # Cursor
 
 # 设置值
 node .opencode/superteam/scripts/state-manager.js set phase=architect  # OpenCode
-node .cursor/superteam/scripts/state-manager.js set phase=architect     # Cursor
+node .cursor/scripts/state-manager.js set phase=architect               # Cursor
 
 # 显示状态
 node .opencode/superteam/scripts/state-manager.js status  # OpenCode
-node .cursor/superteam/scripts/state-manager.js status     # Cursor
+node .cursor/scripts/state-manager.js status               # Cursor
 ```
 
 ### 消息总线
@@ -254,6 +279,23 @@ node .opencode/superteam/scripts/record-event.js \
 
 # 查询事件
 node .opencode/superteam/scripts/record-event.js query --type decision
+```
+
+### Cursor 子代理
+
+```
+@orchestrator 协调实现
+@pm 收集这个功能的需求
+@architect 创建实现计划
+@generator 实现增量 1
+@evaluator 验证增量 1
+@manager 监控执行进度
+```
+
+### Cursor 命令
+
+```
+/superteam 构建一个带 Redis 和死信队列的限流任务队列
 ```
 
 ## 自定义
@@ -311,7 +353,7 @@ test().then(() => {
 node .opencode/superteam/scripts/state-manager.js status
 
 # Cursor
-node .cursor/superteam/scripts/state-manager.js status
+node .cursor/scripts/state-manager.js status
 ```
 
 ### 代理卡住
@@ -322,7 +364,7 @@ node .cursor/superteam/scripts/state-manager.js status
 node .opencode/superteam/scripts/record-event.js query --limit 10
 
 # Cursor
-node .cursor/superteam/scripts/record-event.js query --limit 10
+node .cursor/scripts/record-event.js query --limit 10
 ```
 
 ### 门控失败
@@ -330,6 +372,27 @@ node .cursor/superteam/scripts/record-event.js query --limit 10
 检查结果：
 ```bash
 cat .superteam/gate-results/increment-1.json
+```
+
+### Cursor：找不到子代理
+
+检查 `.cursor/agents/` 是否包含代理定义文件：
+```bash
+ls .cursor/agents/
+```
+
+### Cursor：命令不工作
+
+检查 `.cursor/commands/superteam.md` 是否存在：
+```bash
+ls .cursor/commands/
+```
+
+### Cursor：钩子未触发
+
+检查 `.cursor/hooks.json` 配置：
+```bash
+cat .cursor/hooks.json
 ```
 
 ## 贡献
@@ -371,11 +434,13 @@ MIT 许可证 - 详见 LICENSE 文件
 
 | 方面 | 原版（Claude Code） | OpenCode 适配 | Cursor 适配 |
 |------|---------------------|---------------|-------------|
-| 代理隔离 | tmux 面板 | `task()` 调用 | 单代理上下文 |
+| 代理隔离 | tmux 面板 | `task()` 调用 | `.cursor/agents/*.md` 子代理 |
 | 通信方式 | `SendMessage` | 基于文件的消息 | 基于文件的消息 |
 | 状态管理 | `flock` + CAS | 文件操作 | 文件操作 |
-| 生命周期 | 持久代理 | 无状态任务 | 无状态任务 |
-| 钩子 | PreToolUse/Stop | 技能工作流 | SKILL.md 引用 |
+| 生命周期 | 持久代理 | 无状态任务 | 无状态任务 + Hooks |
+| 钩子 | PreToolUse/Stop | 技能工作流 | `.cursor/hooks.json` |
+| 规则 | 插件配置 | SKILL.md | `.cursor/rules/*.mdc` |
+| 命令 | 插件命令 | `/superteam` 触发 | `.cursor/commands/*.md` |
 | 平台 | 仅 Linux/macOS | 跨平台 | 跨平台 |
 
 ### 致谢

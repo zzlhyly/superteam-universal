@@ -1,0 +1,73 @@
+---
+description: "Superteam multi-agent orchestration system - core concepts and workflow"
+alwaysApply: true
+---
+
+# Superteam Multi-Agent Orchestration
+
+This project uses the **Superteam** multi-agent orchestration system for complex tasks.
+
+## Core Concepts
+
+Superteam decomposes complex tasks into **increments**, each verified by **executable contracts**. The pipeline has 5 phases:
+
+1. **PM Phase** - Requirements gathering with user
+2. **Architect Phase** - Planning and contract creation
+3. **Execute Phase** - Implementation with Generator/Evaluator pairs
+4. **Evaluation Phase** - Strict verification against contracts
+5. **Delivery Phase** - Knowledge extraction and results
+
+## Key Principles
+
+- **Contract-gated verification**: Executable acceptance criteria, not subjective judgment
+- **Separate generation from evaluation**: Self-evaluation is inherently lenient
+- **Progressive context**: Lessons learned accumulate across attempts
+- **File-based state**: History survives context resets
+
+## State Management
+
+All state lives in `.superteam/` directory. Use these scripts for operations:
+
+```bash
+# State management
+node .cursor/scripts/state-manager.js init
+node .cursor/scripts/state-manager.js get .phase
+node .cursor/scripts/state-manager.js set phase=architect
+
+# Gate execution
+node .cursor/scripts/gate-runner.js run 1
+node .cursor/scripts/gate-runner.js final
+
+# Event logging
+node .cursor/scripts/record-event.js --actor agent --type decision --summary "..."
+```
+
+## Agent Coordination
+
+Use `/superteam` command or invoke subagents directly:
+
+```
+/superteam Build a rate-limited job queue with Redis
+```
+
+Or use specialist subagents:
+```
+@orchestrator coordinate the implementation
+@pm gather requirements for this feature
+@architect create an implementation plan
+```
+
+## Workflow
+
+1. Start with `/superteam` command
+2. PM gathers requirements and creates spec
+3. You approve the spec and acceptance gates
+4. Team implements and verifies automatically
+5. Results delivered with knowledge extracted
+
+## Constraints
+
+- NEVER skip phases
+- NEVER declare "done" without user approval
+- ALWAYS run gate scripts before claiming completion
+- ALWAYS log decisions to events.jsonl

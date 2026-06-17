@@ -24,7 +24,7 @@ This is a **multi-platform adaptation** of the [Superteam](https://github.com/Cr
 | Platform | Directory | Entry Point | Status |
 |----------|-----------|-------------|--------|
 | **OpenCode** | `.opencode/superteam/` | `SKILL.md` | ✅ Full support |
-| **Cursor** | `.cursor/superteam/` | `SKILL.md` | ✅ Full support |
+| **Cursor** | `.cursor/` | `.cursor/commands/superteam.md` | ✅ Full support |
 
 ## Overview
 
@@ -58,18 +58,27 @@ Superteam spawns a team of specialized agents to handle complex tasks:
 
 ### For Cursor
 
-1. Copy `.cursor/` to your project root:
+1. Copy `.cursor/` and `AGENTS.md` to your project root:
    ```bash
    # Windows
    xcopy /E /I .cursor %USERPROFILE%\your-project\.cursor
+   copy AGENTS.md %USERPROFILE%\your-project\
    
    # Linux/macOS
    cp -r .cursor /path/to/your/project/
+   cp AGENTS.md /path/to/your/project/
    ```
 
-2. To start a Superteam session, tell the AI:
+2. Start a Superteam session using the command:
    ```
-   Read .cursor/superteam/SKILL.md and start a Superteam session for: [your task]
+   /superteam Build a rate-limited job queue with Redis
+   ```
+
+3. Or use specialist subagents:
+   ```
+   @orchestrator coordinate the implementation
+   @pm gather requirements for this feature
+   @architect create an implementation plan
    ```
 
 ## Architecture
@@ -94,12 +103,13 @@ Orchestrator (Main Agent)
 
 | Aspect | Original (Claude Code) | OpenCode Adaptation | Cursor Adaptation |
 |--------|------------------------|---------------------|-------------------|
-| Agent Isolation | tmux panes | task() calls | Single Agent context |
+| Agent Isolation | tmux panes | task() calls | Subagents (.cursor/agents/) |
 | Communication | SendMessage | File-based messages | File-based messages |
 | State Management | flock + CAS | File operations | File operations |
-| Lifecycle | Persistent agents | Stateless tasks | Stateless tasks |
-| Hooks | PreToolUse/Stop | Skill workflow | SKILL.md reference |
-| Entry Point | Plugin system | SKILL.md | SKILL.md |
+| Lifecycle | Persistent agents | Stateless tasks | Stateless tasks + Hooks |
+| Hooks | PreToolUse/Stop | Skill workflow | .cursor/hooks.json |
+| Entry Point | Plugin system | SKILL.md | Commands + Skills + Rules |
+| Rules | Plugin config | SKILL.md | .cursor/rules/*.mdc |
 
 ## Directory Structure
 
@@ -114,15 +124,28 @@ superteam/
 │       ├── scripts/              # Utility scripts
 │       └── docs/                 # Documentation
 │
-├── .cursor/                      # Cursor version
-│   └── superteam/
-│       ├── SKILL.md              # Entry point
-│       ├── global-guide.md       # Shared rules
-│       ├── agents/               # Agent definitions
-│       ├── task-forms/           # Task form definitions
-│       ├── scripts/              # Utility scripts
-│       └── docs/                 # Documentation
+├── .cursor/                      # Cursor version (native format)
+│   ├── rules/                    # Project rules (.mdc files)
+│   │   ├── 00-core.mdc          # Core rules (always apply)
+│   │   └── 01-superteam-workflow.mdc  # Workflow rules
+│   ├── agents/                   # Custom subagents
+│   │   ├── orchestrator.md       # Workflow coordinator
+│   │   ├── pm.md                 # Requirements gathering
+│   │   ├── architect.md          # Planning
+│   │   ├── generator.md          # Implementation
+│   │   ├── evaluator.md          # Verification
+│   │   └── manager.md            # Monitoring
+│   ├── skills/                   # Dynamic skills
+│   │   └── superteam/
+│   │       └── SKILL.md          # Superteam workflow skill
+│   ├── commands/                 # Custom commands
+│   │   └── superteam.md          # /superteam command
+│   ├── hooks/                    # Hook scripts
+│   │   └── superteam-loop.js     # Long-running loop hook
+│   ├── hooks.json                # Hook configuration
+│   └── scripts/                  # Utility scripts
 │
+├── AGENTS.md                     # Project instructions (Cursor)
 ├── README.md                     # This file
 ├── README.zh.md                  # Chinese documentation
 ├── LICENSE                       # MIT License
@@ -201,19 +224,19 @@ For each increment:
 ```bash
 # Initialize
 node .opencode/superteam/scripts/state-manager.js init  # OpenCode
-node .cursor/superteam/scripts/state-manager.js init     # Cursor
+node .cursor/scripts/state-manager.js init               # Cursor
 
 # Get value
 node .opencode/superteam/scripts/state-manager.js get .phase  # OpenCode
-node .cursor/superteam/scripts/state-manager.js get .phase     # Cursor
+node .cursor/scripts/state-manager.js get .phase               # Cursor
 
 # Set value
 node .opencode/superteam/scripts/state-manager.js set phase=architect  # OpenCode
-node .cursor/superteam/scripts/state-manager.js set phase=architect     # Cursor
+node .cursor/scripts/state-manager.js set phase=architect               # Cursor
 
 # Show status
 node .opencode/superteam/scripts/state-manager.js status  # OpenCode
-node .cursor/superteam/scripts/state-manager.js status     # Cursor
+node .cursor/scripts/state-manager.js status               # Cursor
 ```
 
 ### Message Bus
@@ -254,6 +277,23 @@ node .opencode/superteam/scripts/record-event.js \
 
 # Query events
 node .opencode/superteam/scripts/record-event.js query --type decision
+```
+
+### Cursor Subagents
+
+```
+@orchestrator coordinate the implementation
+@pm gather requirements for this feature
+@architect create an implementation plan
+@generator implement increment 1
+@evaluator verify increment 1
+@manager monitor execution progress
+```
+
+### Cursor Commands
+
+```
+/superteam Build a rate-limited job queue with Redis
 ```
 
 ## Customization
@@ -311,7 +351,7 @@ Check state:
 node .opencode/superteam/scripts/state-manager.js status
 
 # Cursor
-node .cursor/superteam/scripts/state-manager.js status
+node .cursor/scripts/state-manager.js status
 ```
 
 ### Stuck agent
@@ -322,7 +362,7 @@ Check events:
 node .opencode/superteam/scripts/record-event.js query --limit 10
 
 # Cursor
-node .cursor/superteam/scripts/record-event.js query --limit 10
+node .cursor/scripts/record-event.js query --limit 10
 ```
 
 ### Gate failures
@@ -330,6 +370,27 @@ node .cursor/superteam/scripts/record-event.js query --limit 10
 Check results:
 ```bash
 cat .superteam/gate-results/increment-1.json
+```
+
+### Cursor: Subagent not found
+
+Check that `.cursor/agents/` contains the agent definition files:
+```bash
+ls .cursor/agents/
+```
+
+### Cursor: Command not working
+
+Check that `.cursor/commands/superteam.md` exists:
+```bash
+ls .cursor/commands/
+```
+
+### Cursor: Hooks not triggering
+
+Check `.cursor/hooks.json` configuration:
+```bash
+cat .cursor/hooks.json
 ```
 
 ## Contributing
@@ -371,11 +432,13 @@ Adapted for both OpenCode and Cursor:
 
 | Aspect | Original (Claude Code) | OpenCode Adaptation | Cursor Adaptation |
 |--------|------------------------|---------------------|-------------------|
-| Agent Isolation | tmux panes | `task()` calls | Single Agent context |
+| Agent Isolation | tmux panes | `task()` calls | `.cursor/agents/*.md` subagents |
 | Communication | `SendMessage` | File-based messages | File-based messages |
 | State Management | `flock` + CAS | File operations | File operations |
-| Lifecycle | Persistent agents | Stateless tasks | Stateless tasks |
-| Hooks | PreToolUse/Stop | Skill workflow | SKILL.md reference |
+| Lifecycle | Persistent agents | Stateless tasks | Stateless tasks + Hooks |
+| Hooks | PreToolUse/Stop | Skill workflow | `.cursor/hooks.json` |
+| Rules | Plugin config | SKILL.md | `.cursor/rules/*.mdc` |
+| Commands | Plugin commands | `/superteam` trigger | `.cursor/commands/*.md` |
 | Platform | Linux/macOS only | Cross-platform | Cross-platform |
 
 ### Acknowledgments
