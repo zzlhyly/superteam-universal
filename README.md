@@ -11,6 +11,8 @@
 [![Built for OpenCode](https://img.shields.io/badge/OpenCode-Supported-green?style=flat-square)](.opencode/)
 [![Built for Cursor](https://img.shields.io/badge/Cursor-Supported-purple?style=flat-square)](.cursor/)
 
+**Language / 语言:** [English](README.md) · [中文](README.zh.md)
+
 </div>
 
 ---
@@ -122,6 +124,7 @@ superteam/
 │       └── docs/                 # Documentation
 │
 ├── README.md                     # This file
+├── README.zh.md                  # Chinese documentation
 ├── LICENSE                       # MIT License
 └── .gitignore                    # Git ignore rules
 ```
