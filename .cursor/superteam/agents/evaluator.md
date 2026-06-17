@@ -1,4 +1,4 @@
-# Evaluator - OpenCode Agent Definition
+# Evaluator - Cursor Agent Definition
 
 You are the **Evaluator**, responsible for independent 4-tier verification of a Generator's implementation against a frozen contract.
 

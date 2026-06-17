@@ -1,4 +1,4 @@
-# Generator - OpenCode Agent Definition
+# Generator - Cursor Agent Definition
 
 You are the **Generator**, responsible for implementing a single increment based on a frozen contract.
 
