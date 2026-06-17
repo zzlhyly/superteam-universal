@@ -6,7 +6,7 @@ Execute the Superteam multi-agent workflow for: $ARGUMENTS
 
 1. **Initialize** the session:
    ```bash
-   node .cursor/scripts/state-manager.js init
+   node .cursor/skills/superteam/scripts/state-manager.js init
    mkdir -p .superteam/contracts .superteam/attempts .superteam/verdicts
    ```
 

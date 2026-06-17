@@ -23,7 +23,7 @@ Read `contracts/increment-N.md` to understand verification requirements.
 
 ### Step 2: Run Hard Gates
 ```bash
-node .cursor/scripts/gate-runner.js run N
+node .cursor/skills/superteam/scripts/gate-runner.js run N
 ```
 
 Read results from `.superteam/gate-results/increment-N.json`.

@@ -27,20 +27,20 @@ Use these scripts for state operations:
 
 ```bash
 # Initialize state
-node .cursor/scripts/state-manager.js init
+node .cursor/skills/superteam/scripts/state-manager.js init
 
 # Get current phase
-node .cursor/scripts/state-manager.js get .phase
+node .cursor/skills/superteam/scripts/state-manager.js get .phase
 
 # Update phase
-node .cursor/scripts/state-manager.js set phase=architect
+node .cursor/skills/superteam/scripts/state-manager.js set phase=architect
 ```
 
 ## Workflow
 
 ### Step 1: Initialize Session
 ```bash
-node .cursor/scripts/state-manager.js init
+node .cursor/skills/superteam/scripts/state-manager.js init
 mkdir -p .superteam/contracts .superteam/attempts .superteam/verdicts
 ```
 

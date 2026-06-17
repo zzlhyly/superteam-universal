@@ -139,13 +139,11 @@ superteam/
 │   │   └── manager.md            # 监控
 │   ├── skills/                   # 动态技能
 │   │   └── superteam/
-│   │       └── SKILL.md          # Superteam 工作流技能
+│   │       ├── SKILL.md          # Superteam 工作流技能
+│   │       └── scripts/          # 工具脚本
 │   ├── commands/                 # 自定义命令
 │   │   └── superteam.md          # /superteam 命令
-│   ├── hooks/                    # 钩子脚本
-│   │   └── superteam-loop.js     # 长时间运行循环钩子
-│   ├── hooks.json                # 钩子配置
-│   └── scripts/                  # 工具脚本
+│   └── hooks.json                # 钩子配置
 │
 ├── AGENTS.md                     # 项目指令（Cursor）
 ├── README.md                     # 英文说明文档
@@ -226,19 +224,19 @@ superteam/
 ```bash
 # 初始化
 node .opencode/superteam/scripts/state-manager.js init  # OpenCode
-node .cursor/scripts/state-manager.js init               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js init  # Cursor
 
 # 获取值
 node .opencode/superteam/scripts/state-manager.js get .phase  # OpenCode
-node .cursor/scripts/state-manager.js get .phase               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js get .phase  # Cursor
 
 # 设置值
 node .opencode/superteam/scripts/state-manager.js set phase=architect  # OpenCode
-node .cursor/scripts/state-manager.js set phase=architect               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js set phase=architect  # Cursor
 
 # 显示状态
 node .opencode/superteam/scripts/state-manager.js status  # OpenCode
-node .cursor/scripts/state-manager.js status               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js status  # Cursor
 ```
 
 ### 消息总线

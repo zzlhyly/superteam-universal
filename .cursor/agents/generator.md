@@ -35,7 +35,7 @@ Based on contract requirements:
 
 ### Step 4: Run Pre-Validation
 ```bash
-node .cursor/scripts/gate-runner.js run N
+node .cursor/skills/superteam/scripts/gate-runner.js run N
 ```
 
 If gates fail:

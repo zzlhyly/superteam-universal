@@ -3,7 +3,7 @@
   "hooks": {
     "stop": [
       {
-        "command": "node .cursor/hooks/superteam-loop.js"
+        "command": "node .cursor/skills/superteam/scripts/superteam-loop.js"
       }
     ]
   }

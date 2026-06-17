@@ -30,9 +30,9 @@ Each cycle: read fresh state from files → analyze → act → update state
 
 ### 1. Read Current State
 ```bash
-node .cursor/scripts/state-manager.js get .phase
-node .cursor/scripts/state-manager.js get .loop
-node .cursor/scripts/state-manager.js get .agents.active_agents
+node .cursor/skills/superteam/scripts/state-manager.js get .phase
+node .cursor/skills/superteam/scripts/state-manager.js get .loop
+node .cursor/skills/superteam/scripts/state-manager.js get .agents.active_agents
 ```
 
 ### 2. Check for Anomalies
@@ -48,7 +48,7 @@ If current duration exceeds 2x average, investigate.
 
 ### 3. Update State
 ```bash
-node .cursor/scripts/state-manager.js set loop.manager_cycle_count=$((count + 1))
+node .cursor/skills/superteam/scripts/state-manager.js set loop.manager_cycle_count=$((count + 1))
 ```
 
 ### 4. Spawn Next Agent

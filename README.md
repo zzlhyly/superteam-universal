@@ -137,13 +137,11 @@ superteam/
 │   │   └── manager.md            # Monitoring
 │   ├── skills/                   # Dynamic skills
 │   │   └── superteam/
-│   │       └── SKILL.md          # Superteam workflow skill
+│   │       ├── SKILL.md          # Superteam workflow skill
+│   │       └── scripts/          # Utility scripts
 │   ├── commands/                 # Custom commands
 │   │   └── superteam.md          # /superteam command
-│   ├── hooks/                    # Hook scripts
-│   │   └── superteam-loop.js     # Long-running loop hook
-│   ├── hooks.json                # Hook configuration
-│   └── scripts/                  # Utility scripts
+│   └── hooks.json                # Hook configuration
 │
 ├── AGENTS.md                     # Project instructions (Cursor)
 ├── README.md                     # This file
@@ -224,19 +222,19 @@ For each increment:
 ```bash
 # Initialize
 node .opencode/superteam/scripts/state-manager.js init  # OpenCode
-node .cursor/scripts/state-manager.js init               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js init  # Cursor
 
 # Get value
 node .opencode/superteam/scripts/state-manager.js get .phase  # OpenCode
-node .cursor/scripts/state-manager.js get .phase               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js get .phase  # Cursor
 
 # Set value
 node .opencode/superteam/scripts/state-manager.js set phase=architect  # OpenCode
-node .cursor/scripts/state-manager.js set phase=architect               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js set phase=architect  # Cursor
 
 # Show status
 node .opencode/superteam/scripts/state-manager.js status  # OpenCode
-node .cursor/scripts/state-manager.js status               # Cursor
+node .cursor/skills/superteam/scripts/state-manager.js status  # Cursor
 ```
 
 ### Message Bus

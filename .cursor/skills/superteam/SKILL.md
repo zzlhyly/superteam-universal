@@ -65,19 +65,19 @@ For each increment:
 
 ```bash
 # Initialize
-node .cursor/scripts/state-manager.js init
+node .cursor/skills/superteam/scripts/state-manager.js init
 
 # Get state
-node .cursor/scripts/state-manager.js get .phase
+node .cursor/skills/superteam/scripts/state-manager.js get .phase
 
 # Update state
-node .cursor/scripts/state-manager.js set phase=architect
+node .cursor/skills/superteam/scripts/state-manager.js set phase=architect
 
 # Run gates
-node .cursor/scripts/gate-runner.js run 1
+node .cursor/skills/superteam/scripts/gate-runner.js run 1
 
 # Log events
-node .cursor/scripts/record-event.js --actor agent --type decision --summary "..."
+node .cursor/skills/superteam/scripts/record-event.js --actor agent --type decision --summary "..."
 ```
 
 ## File Structure
@@ -103,7 +103,7 @@ This skill uses hooks for long-running agent loops:
 {
   "version": 1,
   "hooks": {
-    "stop": [{ "command": "bun run .cursor/hooks/superteam-loop.ts" }]
+    "stop": [{ "command": "node .cursor/skills/superteam/scripts/superteam-loop.js" }]
   }
 }
 ```
